@@ -54,100 +54,61 @@ def part1(data):
         
     return total
 
+def parse_data2(puzzle_input):
+    """Parse input."""
+
+                
+    return puzzle_input
+
+
 
 def part2(data):
     """Solve part 2."""
-    # print("\nStarting the disk compaction process...")
+    files = {}
+    blanks = []
+    id = 0
+    position = 0
+    
+    for i, digit in enumerate(data):
+        d = int(digit)
+        is_file = i % 2 == 0
+        if is_file:
+            files[id] = (position, d)
+            id = id + 1
+        else:
+            if d != 0:
+                blanks.append((position, d))
+        position += d
 
-    disk = list(data[0])  # Ensure the disk is mutable
-    max_id = data[1]
-    print(f"Initial disk state: {''.join(disk)}")
-
-    # Loop over file IDs in descending order
-    for current_id in range(max_id - 1, -1, -1):
-        current_id_str = str(current_id)
-        print(f"\nProcessing file ID: {current_id_str}")
-
-        # Find all file blocks and free space blocks
-        file_blocks = find_contiguous_blocks(disk, current_id_str)
-        free_blocks = find_contiguous_blocks(disk, ".")
-        
-        # Store the indices of the free blocks
-        original_free_blocks = free_blocks.copy()
-        
-        # Debug output: show the identified blocks
-        print(f"File blocks for ID {current_id_str}: {file_blocks}")
-        print(f"Free space blocks: {free_blocks}")
-
-        # We need to attempt moving the files one by one
-        for file_start, file_end in file_blocks:
-            file_size = file_end - file_start + 1
-            print(f"File block found from {file_start} to {file_end} (size {file_size})")
-
-            # Find leftmost free block that can fit the file
-            for free_start, free_end in free_blocks:
-                free_size = free_end - free_start + 1
-                print(f"Checking free block from {free_start} to {free_end} (size {free_size})")
-
-                if free_size >= file_size:
-                    print(f"Found enough free space for file ID {current_id_str} in block from {free_start} to {free_end}")
-                    if free_start > file_start and free_end > file_end:
-                        print(f"Skipping free block starting at {free_start} because it starts after the file block at {file_start}")
-                        continue
-                    # Move file to free space, from left to right
-                    for i in range(file_size):
-                        disk[free_start + i] = current_id_str
-                        disk[file_start + i] = "."
-                    print(f"Moved file ID {current_id_str} to position {free_start}")
-
-                    # Update free space after file movement
-                    free_blocks = find_contiguous_blocks(disk, ".")
-                    print(f"Updated free blocks after move: {free_blocks}")
-
-                    # Check that free blocks have not been shifted to the right
-                    if free_blocks != original_free_blocks:
-                        print(f"Warning: Free blocks have been modified unexpectedly!")
-                        print(f"Original free blocks: {original_free_blocks}")
-                        print(f"Current free blocks: {free_blocks}")
-                        pass
-                    
-                    # Stop moving this file, since it's already moved
-                    break  # Move to the next file block
-
-        # Visualize the disk after processing each file ID
-        print(f"Disk state after processing file ID {current_id_str}: {''.join(disk)}")
-
-    print("\nFinal disk state:", ''.join(disk))
+    while id > 0:
+        id -= 1
+        pos, size = files[id]
+        for i, (start, length) in enumerate(blanks):
+            if start >= pos:
+                blanks = blanks[:i]
+                break
+            if size <= length:
+                files[id] = (start, size)
+                if size == length:
+                    blanks.pop(i)
+                else:
+                    blanks[i] = (start + size, length - size)
+                break
+    
     total = 0
-    for i, digit in enumerate(disk):
-        if digit == ".":
-            continue
-        total = total + (i * int(digit))
+    for id, (pos, size) in files.items():
+        for x in range(pos, pos + size):
+            total += x * id
+    
     return total
 
-def find_contiguous_blocks(disk, char):
-    """Find all contiguous blocks of a given character in the disk."""
-    blocks = []
-    start = None
-    for i, c in enumerate(disk):
-        if c == char:
-            if start is None:
-                start = i
-        else:
-            if start is not None:
-                blocks.append((start, i - 1))
-                start = None
-    if start is not None:
-        blocks.append((start, len(disk) - 1))
-    return blocks
-
+    
 
 
 def solve(puzzle_input):
     """Solve the puzzle for the given input."""
-    data = parse_data(puzzle_input)
-    yield part1(data)
-    yield part2(data)
+    yield part1(parse_data(puzzle_input))
+    yield part2(parse_data2(puzzle_input))
 
 
 if __name__ == "__main__":
