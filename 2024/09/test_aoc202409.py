@@ -51,4 +51,4 @@ def test_part2_example1(example_one):
 
 def test_part2_example2(example_two):
     """Test part 2 on example input."""
-    assert aoc202409.part2(example_two) == 6204
+    assert aoc202409.part2(example2) == ...
