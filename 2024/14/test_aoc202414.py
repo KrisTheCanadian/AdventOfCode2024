@@ -27,11 +27,9 @@ def test_parse_example1(example1):
     """Test that input is parsed properly."""
     assert example1 == ...
 
-
-@pytest.mark.skip(reason="Not implemented")
 def test_part1_example1(example1):
     """Test part 1 on example input."""
-    assert aoc202414.part1(example1) == ...
+    assert aoc202414.part1(example1) == 12
 
 
 @pytest.mark.skip(reason="Not implemented")
